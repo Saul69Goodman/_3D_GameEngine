@@ -20,7 +20,7 @@ public class GameLoop {
         // OpenGL expects vertices to be defined counter clockwise
         // source: https://learnopengl.com/Getting-started/Hello-Triangle
 
-        float vertices[] = {
+        float vertices[] = { // how are their organized, which order
                 // triangle's 3 Vertices
                 -0.5f, -0.5f, 0.0f,
                 0.5f, -0.5f, 0.0f,
