@@ -7,6 +7,8 @@ import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+
 import classes.List;
 
 public class Loader {
@@ -16,13 +18,14 @@ public class Loader {
     private List<Integer> VAOs = new List<>();
     private List<Integer> VBOs = new List<>();
 
-    public Model loadToVAO(float[] positions){ // returns model takes position
+    public Model loadToVAO(float[] positions, int[] indices){ // returns model takes position
         int vaoID = createVAO(); // creates empty vao and assigns id
+        bindIndicesBuffer(indices); // bind
         storeDataInAttributesList(0, positions); // loads the positions into first attributelist index 0
 
         unbindVAO(); // after vao is assigned id it unbind to prevent any changes/issues
 
-        return new Model(vaoID, positions.length); // returns Model + directly creates it
+        return new Model(vaoID, indices.length); // returns Model + directly creates it
     }
 
     /**
@@ -72,6 +75,23 @@ public class Loader {
 
     private void unbindVAO(){ // unbinds VAO
         GL30.glBindVertexArray(0); // 0 unbinds
+    }
+
+    // indices Buffer is used instead of vertex buffer object because storing the verteces directly results in more memory usage because of repeating verteces. Index buffer ist better as Objects get bigger
+
+    private void bindIndicesBuffer(int[] indices){
+        int VBOID = GL15.glGenBuffers(); // generates vertex buffer object empty
+        VBOs.append(VBOID); // adds Index Buffer to VBO list
+        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, VBOID); // this time binds different type of buffer -> element array buffer -> for indices
+        IntBuffer buffer = storeDataInIntBuffer(indices); // stores indices in buffer calls storeDataInIntBuffer
+        GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW); // stores data in buffer - first parameter is type of buffer, second is buffer, last parameter is usage - Static never to be changed
+    }
+
+    private IntBuffer storeDataInIntBuffer(int[] data) {
+        IntBuffer buffer = BufferUtils.createIntBuffer(data.length); // BufferUtils allocates memory for the intBuffer with the length of data
+        buffer.put(data); // fills with data
+        buffer.flip(); // finished writing and ready to read data
+        return buffer;
     }
 
     private FloatBuffer storeDataInFloatBuffer(float[] data) {

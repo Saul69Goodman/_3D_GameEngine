@@ -20,15 +20,20 @@ public class GameLoop {
         // OpenGL expects vertices to be defined counter clockwise
         // source: https://learnopengl.com/Getting-started/Hello-Triangle
 
-        float vertices[] = { // how are their organized, which order
+        float[] vertices = {
                 // triangle's 3 Vertices
-                -0.5f, -0.5f, 0.0f,
-                0.5f, -0.5f, 0.0f,
-                0.0f,  0.5f, 0.0f
+                -0.5f, -0.5f, 0.0f, // Punkt1
+                0.5f, -0.5f, 0.0f, // Punkt2
+                0.0f,  0.5f, 0.0f  // Punkt3
         };
 
-        Model myFirstTriangle = loader.loadToVAO(vertices); // creates model
+        int[] indices = {
+                0, 1, 2
+        };
 
+        Model myFirstTriangle = loader.loadToVAO(vertices, indices); // creates model
+
+        // game loop; logic, calculations and gameplay -> CPU ; rendering -> GPU
         while (!Display.isCloseRequested()) {
 
             renderer.prepare(); // prepare renderer every single frame
