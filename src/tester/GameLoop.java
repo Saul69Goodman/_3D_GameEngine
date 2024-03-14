@@ -1,11 +1,14 @@
 package tester;
 
+import Models.TexturedModel;
+import Textures.ModelTexture;
 import engine.DisplayManager;
 import engine.Loader;
-import engine.Model;
+import Models.Model;
 import engine.Renderer;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
+import shaders.staticShader;
 
 // main game looping until the application is closed
 public class GameLoop {
@@ -14,8 +17,11 @@ public class GameLoop {
 
         DisplayManager.createDisplay();
 
+        // initializes all needed classes
         Loader loader = new Loader();
         Renderer renderer = new Renderer();
+
+        staticShader shader = new staticShader();
 
         // OpenGL expects vertices to be defined counter clockwise
         // source: https://learnopengl.com/Getting-started/Hello-Triangle
@@ -31,15 +37,24 @@ public class GameLoop {
                 0, 1, 2
         };
 
-        Model myFirstTriangle = loader.loadToVAO(vertices, indices); // creates model
+        // OpenGL need to know texture coordinates corresponding to vertices. Texture coordinate system -> top left is 0,0
+        float[] textureCoords = {
+            0,1, //Punkt1
+            1,1, //Punkt2
+            0.5f,0 //Punkt3
+        };
+
+        Model myFirstTriangle = loader.loadToVAO(vertices, textureCoords, indices); // creates model
+        ModelTexture texture = new ModelTexture(loader.loadTexture("image")); // in res folder
+        TexturedModel texturedModel = new TexturedModel(myFirstTriangle, texture); // creates textured model from raw model and texture
 
         // game loop; logic, calculations and gameplay -> CPU ; rendering -> GPU
         while (!Display.isCloseRequested()) {
-
-            renderer.prepare(); // prepare renderer every single frame
             // game logic
-            renderer.render(myFirstTriangle);
-            // render
+            renderer.prepare(); // prepare renderer every single frame
+            shader.startProgram();
+            renderer.render(texturedModel);
+            shader.stopProgram();
             DisplayManager.updateDisplay(); // 1 frame
 
         }

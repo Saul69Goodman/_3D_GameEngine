@@ -17,9 +17,7 @@ public class DisplayManager {
      */
     public static void createDisplay() throws LWJGLException {
 
-        ContextAttribs attributes = new ContextAttribs(3,2); // 3.2 core profile
-        attributes.withForwardCompatible(true); // ???
-        attributes.withProfileCore(true); // ???
+        ContextAttribs attributes = new ContextAttribs(3,2).withForwardCompatible(true).withProfileCore(true);
 
         try {
             Display.setDisplayMode(new DisplayMode(WIDTH, HEIGHT)); // Sets the display

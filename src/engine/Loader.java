@@ -1,15 +1,20 @@
 package engine;
 
+import Models.Model;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
 import classes.List;
+import org.newdawn.slick.opengl.Texture;
+import org.newdawn.slick.opengl.TextureLoader;
 
 public class Loader {
 
@@ -17,15 +22,30 @@ public class Loader {
     // keeps track of VBOs and VAOs
     private List<Integer> VAOs = new List<>();
     private List<Integer> VBOs = new List<>();
+    private List<Integer> textures = new List<>();
 
-    public Model loadToVAO(float[] positions, int[] indices){ // returns model takes position
+    public Model loadToVAO(float[] positions, float[] textureCoords,int[] indices){ // returns model takes position
         int vaoID = createVAO(); // creates empty vao and assigns id
         bindIndicesBuffer(indices); // bind
-        storeDataInAttributesList(0, positions); // loads the positions into first attributelist index 0
+        storeDataInAttributesList(0, 3, positions); // loads the positions into first attributelist index 0
+        storeDataInAttributesList(1, 2, textureCoords); // loads the texture coordinates into second attributelist index 1
 
         unbindVAO(); // after vao is assigned id it unbind to prevent any changes/issues
 
         return new Model(vaoID, indices.length); // returns Model + directly creates it
+    }
+
+    public int loadTexture(String fileName){ // loads up texture, file name, loads up to memory and returns id for easy access
+        Texture texture = null; // slick utils class -> for easy use of textures with LWJGL
+        try {
+            texture = TextureLoader.getTexture("PNG", new FileInputStream("res/" + fileName + ".png")); // gets texture from class
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        int textureID = texture.getTextureID();
+        textures.append(textureID); // ads to list
+        return textureID; // returns id for easy access
     }
 
     /**
@@ -36,14 +56,21 @@ public class Loader {
 
         while(!VAOs.hasAccess()){
             GL30.glDeleteVertexArrays(VAOs.getContent());
-            VAOs.next();
+            VAOs.remove();
         }
 
         VBOs.toFirst();
 
         while(!VBOs.hasAccess()){
             GL30.glDeleteVertexArrays(VBOs.getContent());
-            VBOs.next();
+            VBOs.remove();
+        }
+
+        textures.toFirst();
+
+        while(!textures.hasAccess()){
+            GL11.glDeleteTextures(textures.getContent());
+            textures.remove();
         }
 
     }
@@ -56,7 +83,7 @@ public class Loader {
         return vaoID; // returns
     }
 
-    private void storeDataInAttributesList(int attributeNumber, float[] data) { // stores data in VAO
+    private void storeDataInAttributesList(int attributeNumber, int coordinateSize, float[] data) { // stores data in VAO // variable coordinate size needed to differntiate between 2d and 3d cords
         // buffer is simply a block of memory that can be written to
         // we are practically binding the vbos to Buffers, blocks of memory so they are stored
 
@@ -68,7 +95,7 @@ public class Loader {
         GL15.glBufferData(GL15.GL_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW); // stores data in vbo
         // last parameter is usage. GL_STATIC_DRAW means the data is read only and never will be edited
 
-        GL20.glVertexAttribPointer(attributeNumber, 3, GL11.GL_FLOAT, false, 0, 0);
+        GL20.glVertexAttribPointer(attributeNumber, coordinateSize, GL11.GL_FLOAT, false, 0, 0);
         // first parameter: attributeindex, second parameter: length of each data (we are using 3D vertex = 3), third parameter: type of data, fourth parameter: normalized: false raw integer values, fifth parameter: stride - is there any data inbetween verteces: no there isn't, sixth parameter: offset
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0); // after use unbind the buffer to free up memory
     }
