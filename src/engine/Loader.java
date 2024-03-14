@@ -1,6 +1,6 @@
 package engine;
 
-import Models.Model;
+import models.Model;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;

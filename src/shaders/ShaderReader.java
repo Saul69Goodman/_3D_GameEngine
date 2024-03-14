@@ -1,19 +1,25 @@
 package shaders;
 
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
+import org.lwjgl.util.vector.Matrix4f;
+import org.lwjgl.util.vector.Vector3f;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.FloatBuffer;
 
-public abstract class shaderReader { //abstract because generic shader programm - every shader programm after that is based of the generic one
+public abstract class ShaderReader { //abstract because generic shader programm - every shader programm after that is based of the generic one
 
     private int programID;
     private int vertexShaderID; //for vertex shader txt
     private int fragmentShaderID;// for fragment shader txt
 
-    public shaderReader(String vertexFile, String fragmentFile){
+    private static FloatBuffer matrixBuffer = BufferUtils.createFloatBuffer(16); // Float buffer needed for Matrix 16 -> 4x4 size; place in memory needed for it
+
+    public ShaderReader(String vertexFile, String fragmentFile){
         vertexShaderID = loadShader(vertexFile, GL20.GL_VERTEX_SHADER); // gets vertex shader ID whilst loading
         fragmentShaderID = loadShader(fragmentFile, GL20.GL_FRAGMENT_SHADER); // gets fragment shader ID whilst loading
         programID = GL20.glCreateProgram(); // creates shader program
@@ -22,7 +28,37 @@ public abstract class shaderReader { //abstract because generic shader programm 
         bindProgramAttributes();
         GL20.glLinkProgram(programID); // links program, usable form, final step - OpenGL verifies all attached shaders are compatible
         GL20.glValidateProgram(programID); // validate that everything works fine with shader program and ready to use
+        getAllUniformLocations(); // must be called after program created
+    }
 
+    // ----------Methods for loading in values--------------
+
+    protected void loadMatrix(int location, Matrix4f matrix){ // Matrix4f is matrix based on homogenous coordinates -> 4x4
+        matrix.store(matrixBuffer); // store matrix in buffer
+        matrixBuffer.flip(); // ready to read
+        GL20.glUniformMatrix4(location, false, matrixBuffer); // load it up into the location of the uniform variable
+    }
+
+    protected void loadBoolean(int location, boolean value){
+        float toLoad = 0; // default is false
+        if(value){
+            toLoad = 1; // set to true if parameter value is true
+        }
+        GL20.glUniform1f(location, toLoad); // loads
+    }
+
+    protected void loadFloat(int location, float value){ // load float value - uniform float variable
+        GL20.glUniform1f(location, value); // location is the location where it is saved in the shader code same for vector
+    }
+
+    protected void loadVector(int location, Vector3f vector){ // Vector3f ist a vector uniform variable in OpenGL
+        GL20.glUniform3f(location, vector.x, vector.y, vector.z);
+    }
+
+    protected abstract void getAllUniformLocations();// all shaders program classes will have a method to get all uniform locations
+
+    protected int getUniformLocation(String uniformName){ // gets uniform variable location - Uniform variable is needed for various transformations -> it is a variable that can be changed during rendering unlike static VBOs -> basically a matrix
+        return GL20.glGetUniformLocation(programID, uniformName); // returns uniform variable location
     }
 
     /**
