@@ -35,7 +35,7 @@ public class Renderer {
 
     /*Beginning: render raw model
     Edit 1: renders textured models
-    Edit 2: reders entities*/
+    Edit 2: renders entities*/
 
     public void render (Entity entity, StaticShader shader){ // static shader so that it uploads transformation of enrtity
 
