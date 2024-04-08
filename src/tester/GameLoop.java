@@ -34,7 +34,7 @@ public class GameLoop {
 
         Renderer renderer = new Renderer(shader); // then renderer because needed as parameter
 
-        // OpenGL expects vertices to be defined counter clockwise
+        // OpenGL expects vertices to be defined counter-clockwise
         // Weitere Quellen: https://learnopengl.com/Getting-started/Hello-Triangle
         // https://www.lwjgl.org/guide
         // https://legacy.lwjgl.org/javadoc.html
