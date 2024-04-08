@@ -13,7 +13,7 @@ public class Maths {
         Matrix4f.translate(translation, matrix, matrix);
 
         // Rotations:
-        Matrix4f.rotate((float)Math.toRadians(rx), new Vector3f(1, 0, 0), matrix, matrix); // rotate matrix by rx in radians around Vector specified as 1,0,0 and store back in matrix again
+        Matrix4f.rotate((float)Math.toRadians(rx), new Vector3f(1, 0, 0), matrix, matrix); // rotate matrix by rx in radians around Vector specified as 1,0,0 and store back in matrix again = 90 degrees
         Matrix4f.rotate((float)Math.toRadians(ry), new Vector3f(0, 1, 0), matrix, matrix);
         Matrix4f.rotate((float)Math.toRadians(rz), new Vector3f(0, 0, 1), matrix, matrix);
 
